@@ -37,6 +37,10 @@
   name: (variable_name (name)) @property)
 (member_access_expression
   name: (name) @property)
+(nullsafe_member_access_expression
+  name: (variable_name (name)) @property)
+(nullsafe_member_access_expression
+  name: (name) @property)
 
 ; Variables
 
