@@ -9,7 +9,7 @@ repository = "https://github.com/zed-extensions/php"
 [language_servers.intelephense]
 name = "Intelephense"
 language = "PHP"
-language_ids = { PHP = "php"}
+language_ids = { PHP = "php" }
 
 [language_servers.phpactor]
 name = "Phpactor"
@@ -22,4 +22,4 @@ path = "php"
 
 [grammars.phpdoc]
 repository = "https://github.com/claytonrcarter/tree-sitter-phpdoc"
-commit = "1d0e255b37477d0ca46f1c9e9268c8fa76c0b3fc"
+commit = "03bb10330704b0b371b044e937d5cc7cd40b4999"
