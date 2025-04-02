@@ -109,6 +109,7 @@
 "for" @keyword
 "foreach" @keyword
 "fn" @keyword
+"from" @keyword
 "function" @keyword
 "global" @keyword
 "goto" @keyword
@@ -139,3 +140,4 @@
 "use" @keyword
 "while" @keyword
 "xor" @keyword
+"yield" @keyword
