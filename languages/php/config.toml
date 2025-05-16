@@ -3,6 +3,7 @@ grammar = "php"
 path_suffixes = ["php"]
 first_line_pattern = '^#!.*php'
 line_comments = ["// ", "# "]
+documentation = { start = "/**", end = "*/", prefix = "* ", tab_size = 1 }
 autoclose_before = ";:.,=}])>"
 brackets = [
     { start = "{", end = "}", close = true, newline = true },
@@ -10,6 +11,7 @@ brackets = [
     { start = "(", end = ")", close = true, newline = true },
     { start = "\"", end = "\"", close = true, newline = false, not_in = ["string"] },
     { start = "'", end = "'", close = true, newline = false, not_in = ["string"] },
+    { start = "/*", end = " */", close = true, newline = false, not_in = ["comment", "string"] },
 ]
 collapsed_placeholder = "/* ... */"
 scope_opt_in_language_servers = ["tailwindcss-language-server"]
