@@ -3,11 +3,12 @@ mod language_servers;
 use zed::CodeLabel;
 use zed_extension_api::{self as zed, serde_json, LanguageServerId, Result};
 
-use crate::language_servers::{Intelephense, Phpactor};
+use crate::language_servers::{Intelephense, Phpactor, Psalm};
 
 struct PhpExtension {
     intelephense: Option<Intelephense>,
     phpactor: Option<Phpactor>,
+    psalm: Option<Psalm>,
 }
 
 impl zed::Extension for PhpExtension {
@@ -15,6 +16,7 @@ impl zed::Extension for PhpExtension {
         Self {
             intelephense: None,
             phpactor: None,
+            psalm: None,
         }
     }
 
@@ -37,6 +39,10 @@ impl zed::Extension for PhpExtension {
                     env: Default::default(),
                 })
             }
+            Psalm::LANGUAGE_SERVER_ID => {
+                let psalm = self.psalm.get_or_insert_with(Psalm::new);
+                psalm.language_server_command(language_server_id, worktree)
+            }
             language_server_id => Err(format!("unknown language server: {language_server_id}")),
         }
     }
@@ -46,10 +52,18 @@ impl zed::Extension for PhpExtension {
         language_server_id: &LanguageServerId,
         worktree: &zed::Worktree,
     ) -> Result<Option<serde_json::Value>> {
-        if language_server_id.as_ref() == Intelephense::LANGUAGE_SERVER_ID {
-            if let Some(intelephense) = self.intelephense.as_mut() {
-                return intelephense.language_server_workspace_configuration(worktree);
+        match language_server_id.as_ref() {
+            Intelephense::LANGUAGE_SERVER_ID => {
+                if let Some(intelephense) = self.intelephense.as_mut() {
+                    return intelephense.language_server_workspace_configuration(worktree);
+                }
             }
+            Psalm::LANGUAGE_SERVER_ID => {
+                if let Some(psalm) = self.psalm.as_ref() {
+                    return psalm.language_server_workspace_configuration(worktree);
+                }
+            }
+            _ => {}
         }
 
         Ok(None)
