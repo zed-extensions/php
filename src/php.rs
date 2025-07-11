@@ -8,11 +8,12 @@ use zed_extension_api::{
 };
 
 use crate::{
-    language_servers::{Intelephense, Phpactor},
+    language_servers::{PhpTools, Intelephense, Phpactor},
     xdebug::XDebug,
 };
 
 struct PhpExtension {
+    phptools: Option<PhpTools>,
     intelephense: Option<Intelephense>,
     phpactor: Option<Phpactor>,
     xdebug: XDebug,
@@ -21,6 +22,7 @@ struct PhpExtension {
 impl zed::Extension for PhpExtension {
     fn new() -> Self {
         Self {
+            phptools: None,
             intelephense: None,
             phpactor: None,
             xdebug: XDebug::new(),
@@ -33,6 +35,10 @@ impl zed::Extension for PhpExtension {
         worktree: &zed::Worktree,
     ) -> Result<zed::Command> {
         match language_server_id.as_ref() {
+            PhpTools::LANGUAGE_SERVER_ID => {
+                let phptools = self.phptools.get_or_insert_with(PhpTools::new);
+                phptools.language_server_command(language_server_id, worktree)
+            }
             Intelephense::LANGUAGE_SERVER_ID => {
                 let intelephense = self.intelephense.get_or_insert_with(Intelephense::new);
                 intelephense.language_server_command(language_server_id, worktree)
@@ -55,6 +61,11 @@ impl zed::Extension for PhpExtension {
         language_server_id: &LanguageServerId,
         worktree: &zed::Worktree,
     ) -> Result<Option<serde_json::Value>> {
+        if language_server_id.as_ref() == PhpTools::LANGUAGE_SERVER_ID {
+            if let Some(phptools) = self.phptools.as_mut() {
+                return phptools.language_server_workspace_configuration(worktree);
+            }
+        }
         if language_server_id.as_ref() == Intelephense::LANGUAGE_SERVER_ID {
             if let Some(intelephense) = self.intelephense.as_mut() {
                 return intelephense.language_server_workspace_configuration(worktree);

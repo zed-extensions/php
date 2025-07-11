@@ -6,6 +6,11 @@ schema_version = 1
 authors = ["Piotr Osiewicz <piotr@zed.dev>"]
 repository = "https://github.com/zed-extensions/php"
 
+[language_servers.phptools]
+name = "PhpTools"
+language = "PHP"
+language_ids = { PHP = "php" }
+
 [language_servers.intelephense]
 name = "Intelephense"
 language = "PHP"
