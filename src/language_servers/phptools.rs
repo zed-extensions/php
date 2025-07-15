@@ -36,7 +36,7 @@ impl PhpTools {
             command: server_path,
             args: vec![
                 "--composerNodes".into(),
-                "false".to_string(), // disable /vendor/ caching
+                "false".into(), // disable /vendor/ caching
             ],
             env: Default::default(),
         })
