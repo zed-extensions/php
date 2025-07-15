@@ -35,7 +35,7 @@ impl PhpTools {
         Ok(zed::Command {
             command: server_path,
             args: vec![
-                "--composerNodes".to_string(),
+                "--composerNodes".into(),
                 "false".to_string(), // disable /vendor/ caching
             ],
             env: Default::default(),
