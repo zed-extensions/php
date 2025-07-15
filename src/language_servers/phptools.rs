@@ -35,8 +35,6 @@ impl PhpTools {
         Ok(zed::Command {
             command: server_path,
             args: vec![
-                //"--debug".to_string(),
-                //"--attach".to_string(),
                 "--composerNodes".to_string(),
                 "false".to_string(), // disable /vendor/ caching
             ],
