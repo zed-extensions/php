@@ -17,3 +17,4 @@ collapsed_placeholder = "/* ... */"
 scope_opt_in_language_servers = ["tailwindcss-language-server"]
 prettier_parser_name = "php"
 prettier_plugins = ["@prettier/plugin-php"]
+word_characters = ["$"]
