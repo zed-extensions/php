@@ -3,6 +3,7 @@
  (#set! injection.combined))
 
 ((string_value) @injection.content
+ (#match? @injection.content "(?i)^\\s*(select|update|insert|delete|show|begin|use|drop|truncate|create|alter)")
  (#set! injection.language "sql"))
 
 ((comment) @injection.content
