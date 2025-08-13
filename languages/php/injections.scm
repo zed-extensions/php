@@ -2,6 +2,9 @@
  (#set! injection.language "html")
  (#set! injection.combined))
 
+((string_value) @injection.content
+ (#set! injection.language "sql"))
+
 ((comment) @injection.content
   (#match? @injection.content "^/\\*\\*[^*]")
   (#set! injection.language "phpdoc"))
