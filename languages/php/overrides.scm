@@ -1,3 +1,6 @@
 (comment) @comment.inclusive
 
-(string) @string
+[
+  (string)
+  (encapsed_string)
+] @string
