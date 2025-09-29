@@ -2,7 +2,6 @@ mod language_servers;
 mod xdebug;
 
 use std::fs;
-use std::path::PathBuf;
 use zed::CodeLabel;
 use zed_extension_api::{
     self as zed, serde_json, DebugConfig, DebugScenario, LanguageServerId, Result,
@@ -10,7 +9,7 @@ use zed_extension_api::{
 };
 
 use crate::{
-    language_servers::{PhpTools, Intelephense, Phpactor},
+    language_servers::{Intelephense, PhpTools, Phpactor},
     xdebug::XDebug,
 };
 
@@ -58,22 +57,22 @@ impl zed::Extension for PhpExtension {
                     let php_path = worktree
                         .which("php")
                         .ok_or("Could not find PHP in path! PHP needs to be installed for running phpactor on Windows")?;
-                    // get abs_phparctor_path
-                    let abs_phparctor_path = fs::canonicalize(&phpactor_path).or_else(|_| {
-                        let path = PathBuf::from(worktree.root_path()).join(&phpactor_path);
-                        if fs::exists(&path).is_ok_and(|exists| exists) {
-                            Ok(path)
-                        } else {
-                            Err("Could not resolve phpactor path!")
-                        }
-                    })?;
+
+                    let abs_phpactor_path = std::env::current_dir()
+                        .map_err(|_| "Could not get current directory")?
+                        .join(&phpactor_path);
+
+                    if !fs::exists(&abs_phpactor_path).map_or(false, |exists| exists) {
+                        return Err(format!(
+                            "Could not resolve phpactor path {:?}!",
+                            phpactor_path
+                        ));
+                    };
 
                     Ok(zed::Command {
                         command: php_path,
                         args: vec![
-                            zed_ext::sanitize_windows_path(abs_phparctor_path)
-                                .to_string_lossy()
-                                .to_string(),
+                            abs_phpactor_path.to_string_lossy().into(),
                             "language-server".into(),
                         ],
                         env: Default::default(),
@@ -162,25 +161,3 @@ impl zed::Extension for PhpExtension {
 }
 
 zed::register_extension!(PhpExtension);
-
-/// Extensions to the Zed extension API that have not yet stabilized.
-mod zed_ext {
-    /// Sanitizes the given path to remove the leading `/` on Windows.
-    ///
-    /// On macOS and Linux this is a no-op.
-    ///
-    /// This is a workaround for https://github.com/bytecodealliance/wasmtime/issues/10415.
-    pub fn sanitize_windows_path(path: std::path::PathBuf) -> std::path::PathBuf {
-        use zed_extension_api::{current_platform, Os};
-
-        let (os, _arch) = current_platform();
-        match os {
-            Os::Mac | Os::Linux => path,
-            Os::Windows => path
-                .to_string_lossy()
-                .to_string()
-                .trim_start_matches('/')
-                .into(),
-        }
-    }
-}
