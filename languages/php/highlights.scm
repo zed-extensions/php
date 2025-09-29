@@ -42,9 +42,19 @@
 (nullsafe_member_access_expression
   name: (name) @property)
 
-; Variables
+; Special classes
 
-(relative_scope) @variable.builtin
+(relative_scope) @constructor
+
+((object_creation_expression (name) @constructor)
+ (#any-of? @constructor "self" "parent"))
+
+((binary_expression
+  operator: "instanceof"
+  right: (name) @constructor)
+ (#any-of? @constructor "self" "parent"))
+
+; Variables
 
 ((name) @constant
  (#match? @constant "^_?[A-Z][A-Z\\d_]+$"))
@@ -74,7 +84,77 @@
 (float) @number
 (comment) @comment
 
-"$" @operator
+; Operators
+
+[
+  "="
+  "+="
+  "-="
+  "*="
+  "/="
+  "%="
+  "**="
+  ".="
+  "??="
+  "&="
+  "|="
+  "^="
+  "<<="
+  ">>="
+
+  "+"
+  "-"
+  "*"
+  "/"
+  "%"
+  "**"
+  "."
+
+  "=="
+  "!="
+  "==="
+  "!=="
+  "<"
+  ">"
+  "<="
+  ">="
+  "<=>"
+
+  "&&"
+  "||"
+  "!"
+
+  "??"
+  "?"
+  ":"
+
+  "&"
+  "|"
+  "^"
+  "~"
+  "<<"
+  ">>"
+
+  "++"
+  "--"
+
+  "@"
+
+  "$"
+] @operator
+
+; punctuation
+
+[
+  "("
+  ")"
+  "["
+  "]"
+  "{"
+  "}"
+] @punctuation.bracket
+
+; "$" @punctuation.special
 
 ; Keywords
 
