@@ -1,7 +1,7 @@
 mod language_servers;
 
-use std::env;
 use std::fs;
+use std::path::PathBuf;
 use zed::CodeLabel;
 use zed_extension_api::{self as zed, serde_json, LanguageServerId, Result};
 
@@ -35,39 +35,37 @@ impl zed::Extension for PhpExtension {
 
                 let (platform, _) = zed::current_platform();
 
-                let phparctor_path =
+                let phpactor_path =
                     phpactor.language_server_binary_path(language_server_id, worktree)?;
 
                 if platform == zed::Os::Windows {
                     // fix：.phar files are not executable https://github.com/zed-extensions/php/issues/23
-                    if let Some(path) = worktree.which("php") {
-                        // get abs_phparctor_path
-                        let abs_phparctor_path = match fs::canonicalize(&phparctor_path) {
-                            Ok(path) => path,
-                            Err(_) => {
-                                // canonicalize 失败，fallback
-                                env::current_dir()
-                                    .map_err(|e| format!("failed to get current directory: {e}"))?
-                                    .join(&phparctor_path)
-                            }
-                        };
+                    let php_path = worktree
+                        .which("php")
+                        .ok_or("Could not find PHP in path! PHP needs to be installed for running phpactor on Windows")?;
+                    // get abs_phparctor_path
+                    let abs_phparctor_path = fs::canonicalize(&phpactor_path).or_else(|_| {
+                        let path = PathBuf::from(worktree.root_path()).join(&phpactor_path);
+                        if fs::exists(&path).is_ok_and(|exists| exists) {
+                            Ok(path)
+                        } else {
+                            Err("Could not resolve phpactor path!")
+                        }
+                    })?;
 
-                        return Ok(zed::Command {
-                            command: path,
-                            args: vec![
-                                zed_ext::sanitize_windows_path(abs_phparctor_path)
-                                    .to_string_lossy()
-                                    .to_string(),
-                                "language-server".into(),
-                            ],
-                            env: Default::default(),
-                        });
-                    } else {
-                        return Err("php not found".into());
-                    }
+                    Ok(zed::Command {
+                        command: php_path,
+                        args: vec![
+                            zed_ext::sanitize_windows_path(abs_phparctor_path)
+                                .to_string_lossy()
+                                .to_string(),
+                            "language-server".into(),
+                        ],
+                        env: Default::default(),
+                    })
                 } else {
                     Ok(zed::Command {
-                        command: phparctor_path,
+                        command: phpactor_path,
                         args: vec!["language-server".into()],
                         env: Default::default(),
                     })
