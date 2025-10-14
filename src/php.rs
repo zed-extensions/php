@@ -1,6 +1,7 @@
 mod language_servers;
 mod xdebug;
 
+use std::fs;
 use zed::CodeLabel;
 use zed_extension_api::{
     self as zed, serde_json, DebugConfig, DebugScenario, LanguageServerId, Result,
@@ -8,7 +9,7 @@ use zed_extension_api::{
 };
 
 use crate::{
-    language_servers::{PhpTools, Intelephense, Phpactor},
+    language_servers::{Intelephense, PhpTools, Phpactor},
     xdebug::XDebug,
 };
 
@@ -46,11 +47,43 @@ impl zed::Extension for PhpExtension {
             Phpactor::LANGUAGE_SERVER_ID => {
                 let phpactor = self.phpactor.get_or_insert_with(Phpactor::new);
 
-                Ok(zed::Command {
-                    command: phpactor.language_server_binary_path(language_server_id, worktree)?,
-                    args: vec!["language-server".into()],
-                    env: Default::default(),
-                })
+                let (platform, _) = zed::current_platform();
+
+                let phpactor_path =
+                    phpactor.language_server_binary_path(language_server_id, worktree)?;
+
+                if platform == zed::Os::Windows {
+                    // fix：.phar files are not executable https://github.com/zed-extensions/php/issues/23
+                    let php_path = worktree
+                        .which("php")
+                        .ok_or("Could not find PHP in path! PHP needs to be installed for running phpactor on Windows")?;
+
+                    let abs_phpactor_path = std::env::current_dir()
+                        .map_err(|_| "Could not get current directory")?
+                        .join(&phpactor_path);
+
+                    if !fs::exists(&abs_phpactor_path).map_or(false, |exists| exists) {
+                        return Err(format!(
+                            "Could not resolve phpactor path {:?}!",
+                            phpactor_path
+                        ));
+                    };
+
+                    Ok(zed::Command {
+                        command: php_path,
+                        args: vec![
+                            abs_phpactor_path.to_string_lossy().into(),
+                            "language-server".into(),
+                        ],
+                        env: Default::default(),
+                    })
+                } else {
+                    Ok(zed::Command {
+                        command: phpactor_path,
+                        args: vec!["language-server".into()],
+                        env: Default::default(),
+                    })
+                }
             }
             language_server_id => Err(format!("unknown language server: {language_server_id}")),
         }
