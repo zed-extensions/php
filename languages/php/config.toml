@@ -3,7 +3,8 @@ grammar = "php"
 path_suffixes = ["php"]
 first_line_pattern = '^#!.*php'
 line_comments = ["// ", "# "]
-documentation = { start = "/**", end = "*/", prefix = "* ", tab_size = 1 }
+block_comment = { start = "/*", end = "*/", prefix = "* ", tab_size = 1 }
+documentation_comment = { start = "/**", end = "*/", prefix = "* ", tab_size = 1 }
 autoclose_before = ";:.,=}])>"
 brackets = [
     { start = "{", end = "}", close = true, newline = true },
