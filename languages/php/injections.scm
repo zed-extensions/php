@@ -6,6 +6,9 @@
   (#match? @injection.content "^/\\*\\*[^*]")
   (#set! injection.language "phpdoc"))
 
+((comment) @injection.content
+ (#set! injection.language "comment"))
+
 ((heredoc_body) (heredoc_end) @injection.language) @injection.content
 
 ((nowdoc_body) (heredoc_end) @injection.language) @injection.content
