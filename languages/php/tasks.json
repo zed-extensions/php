@@ -6,9 +6,33 @@
     "tags": ["phpunit-test"]
   },
   {
+    "label": "phpunit test $ZED_FILENAME",
+    "command": "./vendor/bin/phpunit",
+    "args": ["$ZED_FILE"],
+    "tags": ["phpunit-test"]
+  },
+  {
+    "label": "phpunit run all tests",
+    "command": "./vendor/bin/phpunit",
+    "args": [],
+    "tags": ["phpunit-test"]
+  },
+  {
     "label": "pest test $ZED_SYMBOL",
     "command": "./vendor/bin/pest",
     "args": ["--filter", "\"$ZED_SYMBOL\"", "$ZED_FILE"],
+    "tags": ["pest-test"]
+  },
+  {
+    "label": "pest test $ZED_FILENAME",
+    "command": "./vendor/bin/pest",
+    "args": ["$ZED_FILE"],
+    "tags": ["pest-test"]
+  },
+  {
+    "label": "pest run all tests",
+    "command": "./vendor/bin/pest",
+    "args": [],
     "tags": ["pest-test"]
   },
   {
