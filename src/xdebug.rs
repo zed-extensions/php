@@ -107,14 +107,13 @@ impl XDebug {
                 .into_owned()
         };
 
-        let tcp_connection =
-            task_definition
-                .tcp_connection
-                .unwrap_or(TcpArgumentsTemplate {
-                    host: None,
-                    port: None,
-                    timeout: None,
-                });
+        let tcp_connection = task_definition
+            .tcp_connection
+            .unwrap_or(TcpArgumentsTemplate {
+                host: None,
+                port: None,
+                timeout: None,
+            });
         let TcpArguments {
             host,
             port,
