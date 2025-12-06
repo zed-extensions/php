@@ -29,7 +29,7 @@ impl XDebug {
             .and_then(|v| {
                 v.as_str().and_then(|s| {
                     s.eq("launch")
-                        .then(|| StartDebuggingRequestArgumentsRequest::Launch)
+                        .then_some(StartDebuggingRequestArgumentsRequest::Launch)
                 })
             })
             .ok_or_else(|| "Invalid config".into())
@@ -98,7 +98,7 @@ impl XDebug {
                 .current_version
                 .get()
                 .cloned()
-                .ok_or_else(|| format!("no installed version of Xdebug found"))?;
+                .ok_or_else(|| "no installed version of Xdebug found".to_string())?;
             env::current_dir()
                 .unwrap()
                 .join(Self::NAME)
@@ -107,15 +107,13 @@ impl XDebug {
                 .into_owned()
         };
 
-        let tcp_connection =
-            task_definition
-                .tcp_connection
-                .clone()
-                .unwrap_or_else(|| TcpArgumentsTemplate {
-                    host: None,
-                    port: None,
-                    timeout: None,
-                });
+        let tcp_connection = task_definition
+            .tcp_connection
+            .unwrap_or(TcpArgumentsTemplate {
+                host: None,
+                port: None,
+                timeout: None,
+            });
         let TcpArguments {
             host,
             port,
@@ -146,7 +144,7 @@ impl XDebug {
             cwd: Some(worktree.root_path()),
             envs: vec![],
             request_args: StartDebuggingRequestArguments {
-                request: self.dap_request_kind(&configuration)?.into(),
+                request: self.dap_request_kind(&configuration)?,
                 configuration: configuration.to_string(),
             },
         })
@@ -173,7 +171,7 @@ impl XDebug {
                 let mut version = std::fs::read_dir(Self::NAME)
                     .ok()
                     .into_iter()
-                    .flat_map(|e| e)
+                    .flatten()
                     .filter_map(|e| {
                         e.ok().and_then(|entry| {
                             entry
