@@ -62,7 +62,7 @@ impl zed::Extension for PhpExtension {
                         .map_err(|_| "Could not get current directory")?
                         .join(&phpactor_path);
 
-                    if !fs::exists(&abs_phpactor_path).map_or(false, |exists| exists) {
+                    if !fs::exists(&abs_phpactor_path).is_ok_and(|exists| exists) {
                         return Err(format!(
                             "Could not resolve phpactor path {:?}!",
                             phpactor_path
