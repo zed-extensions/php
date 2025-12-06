@@ -164,5 +164,6 @@
         }
       }
     }
-  }
+  },
+  "required": ["request", "program"]
 }
