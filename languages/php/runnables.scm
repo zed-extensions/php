@@ -4,8 +4,9 @@
 ; and the method is public
 (
     (class_declaration
-        modifier: (_)? @_modifier
-        (#not-eq? @_modifier "abstract")
+        (_)* @_modifier
+        (#not-any-eq? @_modifier "abstract")
+        .
         name: (_) @_name
         (#match? @_name ".*Test$")
         body: (declaration_list
@@ -26,8 +27,9 @@
 ; and the method is public
 (
     (class_declaration
-        modifier: (_)? @_modifier
-        (#not-eq? @_modifier "abstract")
+        (_)* @_modifier
+        (#not-any-eq? @_modifier "abstract")
+        .
         name: (_) @_name
         (#match? @_name ".*Test$")
         body: (declaration_list
@@ -51,8 +53,9 @@
 ; and the method is public
 (
     (class_declaration
-        modifier: (_)? @_modifier
-        (#not-eq? @_modifier "abstract")
+        (_)* @_modifier
+        (#not-any-eq? @_modifier "abstract")
+        .
         name: (_) @_name
         (#match? @_name ".*Test$")
         body: (declaration_list
@@ -77,8 +80,9 @@
 ; and that doesn't have the abstract modifier
 (
     (class_declaration
-        modifier: (_)? @_modifier
-        (#not-eq? @_modifier "abstract")
+        (_)* @_modifier
+        (#not-any-eq? @_modifier "abstract")
+        .
         name: (_) @run
         (#match? @run ".*Test$")
     ) @_phpunit-test
@@ -95,8 +99,8 @@
             .
             (argument
                 [
-                  (encapsed_string (string_value) @run)
-                  (string (string_value) @run)
+                  (encapsed_string (string_content) @run)
+                  (string (string_content) @run)
                 ]
             )
         )
