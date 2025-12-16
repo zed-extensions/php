@@ -1,5 +1,5 @@
 (php_tag) @tag
-"?>" @tag
+(php_end_tag) @tag
 
 ; Types
 
@@ -80,7 +80,7 @@
 ; Basic tokens
 [
   (string)
-  (string_value)
+  (string_content)
   (encapsed_string)
   (heredoc)
   (heredoc_body)
@@ -170,7 +170,6 @@
 "and" @keyword
 "as" @keyword
 "break" @keyword
-"callable" @keyword
 "case" @keyword
 "catch" @keyword
 "class" @keyword
@@ -197,7 +196,6 @@
 "for" @keyword
 "foreach" @keyword
 "fn" @keyword
-"from" @keyword
 "function" @keyword
 "global" @keyword
 "goto" @keyword
@@ -229,3 +227,4 @@
 "while" @keyword
 "xor" @keyword
 "yield" @keyword
+"yield from" @keyword
