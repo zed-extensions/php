@@ -25,6 +25,9 @@
 (member_call_expression
   name: (name) @function.method)
 
+(nullsafe_member_call_expression
+  name: (name) @function.method)
+
 (function_definition
   name: (name) @function)
 
