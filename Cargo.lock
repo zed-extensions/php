@@ -762,7 +762,7 @@ dependencies = [
 
 [[package]]
 name = "zed_php"
-version = "0.4.5"
+version = "0.4.6"
 dependencies = [
  "zed_extension_api",
 ]
