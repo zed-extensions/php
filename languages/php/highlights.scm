@@ -8,6 +8,11 @@
 (named_type (name) @type) @type
 (named_type (qualified_name) @type) @type
 
+; Named arguments (PHP 8+)
+
+(argument
+  name: (name) @label)
+
 ; Functions
 
 (array_creation_expression "array" @function.builtin)
