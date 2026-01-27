@@ -11,7 +11,7 @@
 ; Named arguments (PHP 8+)
 
 (argument
-  name: (name) @label)
+  name: (name) @variable.parameter)
 
 ; Functions
 
