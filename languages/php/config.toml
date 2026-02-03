@@ -1,6 +1,6 @@
 name = "PHP"
 grammar = "php"
-path_suffixes = ["php"]
+path_suffixes = ["php", "phtml"]
 first_line_pattern = '^#!.*php'
 line_comments = ["// ", "# "]
 block_comment = { start = "/*", end = "*/", prefix = "* ", tab_size = 1 }
