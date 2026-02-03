@@ -6,7 +6,8 @@
 (primitive_type) @type.builtin
 (cast_type) @type.builtin
 (named_type (name) @type) @type
-(named_type (qualified_name) @type) @type
+
+(named_type (qualified_name (name) @type))
 
 ; Named arguments (PHP 8+)
 
@@ -71,6 +72,17 @@
 
 ((name) @constructor
  (#match? @constructor "^[A-Z]"))
+
+; Namespace qualifiers
+
+(class_constant_access_expression
+  (qualified_name (namespace_name (name) @label)))
+(scoped_call_expression
+  scope: (qualified_name (namespace_name (name) @label)))
+(object_creation_expression
+  (qualified_name (namespace_name (name) @label)))
+(named_type
+  (qualified_name (namespace_name (name) @label)))
 
 ((name) @variable.builtin
  (#eq? @variable.builtin "this"))
