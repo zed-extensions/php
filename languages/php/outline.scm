@@ -44,3 +44,9 @@
 ) @item
 
 (comment) @annotation
+
+(property_declaration
+  (property_element
+    name: (variable_name) @name
+  )
+) @item
