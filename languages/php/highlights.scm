@@ -50,6 +50,11 @@
 (nullsafe_member_access_expression
   name: (name) @property)
 
+; Class constant access (e.g., Class::CONSTANT)
+
+(class_constant_access_expression
+  (_) (name) @constant)
+
 ; Special classes
 
 (relative_scope) @constructor
@@ -64,13 +69,13 @@
 
 ; Variables
 
+((name) @constructor
+ (#match? @constructor "^[A-Z]"))
+
 ((name) @constant
  (#match? @constant "^_?[A-Z][A-Z\\d_]+$"))
 ((name) @constant.builtin
  (#match? @constant.builtin "^__[A-Z][A-Z\d_]+__$"))
-
-((name) @constructor
- (#match? @constructor "^[A-Z]"))
 
 ((name) @variable.builtin
  (#eq? @variable.builtin "this"))
