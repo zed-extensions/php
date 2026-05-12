@@ -49,7 +49,7 @@
 
 ; Class that follow the naming convention of PHPUnit test classes
 ; and that doesn't have the abstract modifier
-; and have a method that has the #[Test] attribute
+; and have a method that has the #[Test] attribute (short or fully-qualified form)
 ; and the method is public
 (
     (class_declaration
@@ -62,7 +62,12 @@
             (method_declaration
                 (attribute_list
                     (attribute_group
-                        (attribute (name) @_attribute)
+                        (attribute
+                            [
+                                (name) @_attribute
+                                (qualified_name (name) @_attribute)
+                            ]
+                        )
                     )
                 )
                 (#eq? @_attribute "Test")
