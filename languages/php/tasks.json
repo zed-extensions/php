@@ -36,6 +36,30 @@
     "tags": ["pest-test"]
   },
   {
+    "label": "testo: run $ZED_SYMBOL",
+    "command": "php",
+    "args": ["vendor/bin/testo", "--path=\"$ZED_RELATIVE_FILE\"", "--filter=\"$ZED_SYMBOL\""],
+    "tags": ["testo-test"]
+  },
+  {
+    "label": "testo: run file $ZED_FILENAME",
+    "command": "php",
+    "args": ["vendor/bin/testo", "--path=\"$ZED_RELATIVE_FILE\""],
+    "tags": ["testo-test"]
+  },
+  {
+    "label": "testo: run all tests",
+    "command": "php",
+    "args": ["vendor/bin/testo"],
+    "tags": ["testo-test"]
+  },
+  {
+    "label": "testo: run suite ($ZED_FILENAME)",
+    "command": "php",
+    "args": ["vendor/bin/testo", "--config=\"$ZED_FILE\""],
+    "tags": ["testo-config"]
+  },
+  {
     "label": "execute selection $ZED_SELECTED_TEXT",
     "command": "php",
     "args": ["-r", "$ZED_SELECTED_TEXT"]
