@@ -45,56 +45,16 @@
         (#not-match? @run "^test.*"))))) @_phpunit-test
   (#set! tag phpunit-test))
 
-; Method carrying the #[Test] attribute, disambiguated to PHPUnit via the
-; file's `use` import. Both PHPUnit (PHPUnit\Framework\Attributes\Test) and
-; Testo (Testo\Test) expose a method-level #[Test]; since PHP forbids two
-; imports sharing an alias, the presence of `use PHPUnit\Framework\Attributes\Test`
-; proves the attribute is PHPUnit's. This replaces the old class-name (*Test)
-; gate so that a Testo file's #[Test] methods are no longer tagged phpunit-test.
-; (Trade-off: a PHPUnit file importing the attribute via a group use or writing
-; it fully-qualified won't match here — it still gets class-level buttons.)
-;
-; Form 1: no namespace, or `namespace X;` — `use` and class are siblings.
-((program
-  (namespace_use_declaration
-    (namespace_use_clause
-      (qualified_name) @_use))
-  (#eq? @_use "PHPUnit\\Framework\\Attributes\\Test")
-  (class_declaration
-    body: (declaration_list
-      (method_declaration
-        attributes: (attribute_list
-          (attribute_group
-            (attribute
-              (name) @_attribute)))
-        (#eq? @_attribute "Test")
-        (visibility_modifier)? @_visibility
-        (#eq? @_visibility "public")
-        name: (_) @run
-        (#not-match? @run "^test.*"))))) @_phpunit-test
-  (#set! tag phpunit-test))
-
-; Form 2: braced `namespace X { ... }`.
-((namespace_definition
-  body: (compound_statement
-    (namespace_use_declaration
-      (namespace_use_clause
-        (qualified_name) @_use))
-    (#eq? @_use "PHPUnit\\Framework\\Attributes\\Test")
-    (class_declaration
-      body: (declaration_list
-        (method_declaration
-          attributes: (attribute_list
-            (attribute_group
-              (attribute
-                (name) @_attribute)))
-          (#eq? @_attribute "Test")
-          (visibility_modifier)? @_visibility
-          (#eq? @_visibility "public")
-          name: (_) @run
-          (#not-match? @run "^test.*")))))) @_phpunit-test
-  (#set! tag phpunit-test))
-
+; NOTE: a short method-level `#[Test]` is ambiguous between PHPUnit
+; (PHPUnit\Framework\Attributes\Test) and Testo (Testo\Test). The only precise
+; disambiguator is the file's `use` import, but correlating it with the method
+; requires a query rooted at `program`/`namespace` that spans the whole file —
+; such patterns create one in-progress match state per (use-statement × method)
+; pair, which blows past tree-sitter's match limit on real files and silently
+; drops later runnables (gutters vanish from some line downward). So bare
+; `#[Test]` is handled locally by the Testo section instead; PHPUnit here relies
+; on its naming convention (`*Test` class + `test*`/`@test`) and on the
+; fully-qualified `#[\PHPUnit\Framework\Attributes\Test]` below.
 ; Class that follow the naming convention of PHPUnit test classes
 ; and that doesn't have the abstract modifier
 ; and extends a base class (see note above — filters out inheritance-less
@@ -131,14 +91,11 @@
 ;     are treated as data providers and skipped);
 ;   * any free function annotated with `#[Test]`.
 ;
-; The class-level `#[Test]` is what distinguishes Testo from PHPUnit, where
-; `#[Test]` (PHPUnit\Framework\Attributes\Test) is only ever placed on
-; methods. A bare method-level `#[Test]` is therefore ambiguous between the
-; two frameworks — tree-sitter can't tell `use Testo\Test` from
-; `use PHPUnit\Framework\Attributes\Test` — so we deliberately do NOT emit a
-; Testo runnable for it (that method-only Testo style is rare, and matching it
-; would put Testo buttons on every PHPUnit test). A class-level or
-; function-level `#[Test]` is unambiguous and is matched below.
+; A bare method-level `#[Test]` is ambiguous between Testo and PHPUnit, and the
+; only exact disambiguator (the file's `use` import) can only be correlated by a
+; `program`-rooted query that blows past tree-sitter's match limit on real files
+; (dropping later runnables). We therefore match `#[Test]` LOCALLY and treat it
+; as Testo; PHPUnit keeps its naming-convention / fully-qualified detection.
 ;
 ; Note: abstract classes are not excluded here (tree-sitter queries can't
 ; assert the absence of a modifier). Testo ignores them at run time, so at
@@ -176,73 +133,33 @@
   name: (_) @run) @_testo-test
   (#set! tag testo-test))
 
-; Free function annotated with a #[Test] attribute
-((function_definition
-  attributes: (attribute_list
-    (attribute_group
-      (attribute
-        [
-          (name)
-          (qualified_name)
-        ] @_fn_attr)))
-  (#any-of? @_fn_attr "Test" "\\Testo\\Test")
-  name: (_) @run) @_testo-test
-  (#set! tag testo-test))
-
-; Method-level #[Test] disambiguated to Testo via the file's `use` import.
-; PHP forbids importing two different classes under the same alias, so once a
-; file contains `use Testo\Test;` every unqualified `#[Test]` in it is Testo's
-; — that is how we tell a method-level Testo test apart from a PHPUnit one
-; (`PHPUnit\Framework\Attributes\Test`) without semantic resolution. The `use`
-; and the class have to be matched through a shared ancestor.
-;
-; Form 1: no namespace, or the `namespace X;` (semicolon) form — the `use` and
-; the class are siblings under the program root.
-((program
-  (namespace_use_declaration
-    (namespace_use_clause
-      (qualified_name) @_use))
-  (#match? @_use "^Testo\\\\Test$")
-  (class_declaration
-    body: (declaration_list
-      (method_declaration
-        attributes: (attribute_list
-          (attribute_group
-            (attribute
-              (name) @_attr)))
-        (#eq? @_attr "Test")
-        name: (_) @run)))) @_testo-test
-  (#set! tag testo-test))
-
-; Form 2: the braced `namespace X { ... }` form — the `use` and the class live
-; inside the namespace body instead of at the program root.
-((namespace_definition
-  body: (compound_statement
-    (namespace_use_declaration
-      (namespace_use_clause
-        (qualified_name) @_use))
-    (#match? @_use "^Testo\\\\Test$")
-    (class_declaration
-      body: (declaration_list
-        (method_declaration
-          attributes: (attribute_list
-            (attribute_group
-              (attribute
-                (name) @_attr)))
-          (#eq? @_attr "Test")
-          name: (_) @run))))) @_testo-test
-  (#set! tag testo-test))
-
-; Method carrying a fully-qualified `#[\Testo\Test]` attribute. A fully
-; qualified name is self-identifying, so no `use` correlation is needed and it
-; is unambiguous regardless of the class name.
-((method_declaration
-  attributes: (attribute_list
-    (attribute_group
-      (attribute
-        (qualified_name) @_attr)))
-  (#eq? @_attr "\\Testo\\Test")
-  name: (_) @run) @_testo-test
+; Method or free function carrying `#[Test]` / `#[\Testo\Test]` — run-all icon on
+; the name. Matched LOCALLY (rooted at the declaration), never at `program`, so
+; there is no per-(use-statement × method) match-state blow-up. See the note in
+; the PHPUnit section: a bare method-level `#[Test]` can't be told apart from
+; PHPUnit's without a file-spanning `use` correlation, and that correlation is
+; exactly what made gutters disappear — so bare `#[Test]` is treated as Testo.
+([
+  (method_declaration
+    attributes: (attribute_list
+      (attribute_group
+        (attribute
+          [
+            (name)
+            (qualified_name)
+          ] @_attr)))
+    name: (_) @run)
+  (function_definition
+    attributes: (attribute_list
+      (attribute_group
+        (attribute
+          [
+            (name)
+            (qualified_name)
+          ] @_attr)))
+    name: (_) @run)
+] @_testo-test
+  (#any-of? @_attr "Test" "\\Testo\\Test")
   (#set! tag testo-test))
 
 ; Testo configuration file: `return new ApplicationConfig(...)`. Runs the whole
@@ -255,6 +172,152 @@
     ] @run
     (#match? @run "(^|\\\\)ApplicationConfig$"))) @_testo-config
   (#set! tag testo-config))
+
+; ---------------------------------------------------------------------------
+; Testo — typed attribute runnables (methods and free functions).
+;
+; Each test-kind attribute gets its own gutter icon anchored on the attribute
+; itself, running only that kind via `--type=<kind>`. The icon sits on the
+; attribute's row because `@run` is placed on the attribute node; `$ZED_SYMBOL`
+; still resolves to the enclosing method/function (its outline item spans the
+; attribute lines), so `--filter` stays symbol-scoped. Each kind matches both a
+; `method_declaration` and a `function_definition` via a `[...]` alternation.
+;
+; The kinds have Testo-unique names and are matched by bare name or FQN
+; directly, locally (never rooted at `program`, to avoid the match-state
+; blow-up described in the PHPUnit section). `#[Test]` is treated as Testo.
+; ---------------------------------------------------------------------------
+; #[Test] / #[\Testo\Test] on a method or free function -> --type=test.
+([
+  (method_declaration
+    attributes: (attribute_list
+      (attribute_group
+        (attribute
+          [
+            (name)
+            (qualified_name)
+          ] @run))))
+  (function_definition
+    attributes: (attribute_list
+      (attribute_group
+        (attribute
+          [
+            (name)
+            (qualified_name)
+          ] @run))))
+] @_testo-type-test
+  (#any-of? @run "Test" "\\Testo\\Test")
+  (#set! tag testo-type-test))
+
+; #[TestInline] (\Testo\Inline\TestInline) -> --type=inline. Repeatable, so a
+; symbol may carry several; each occurrence is a separate match and thus its own
+; icon. The 0-based ordinal that Testo accepts as `--filter=<symbol>:<n>` cannot
+; be derived by tree-sitter (it can't count filtered siblings, and Zed exposes
+; no such variable), so the filter stays symbol-level and every inline case is
+; run.
+([
+  (method_declaration
+    attributes: (attribute_list
+      (attribute_group
+        (attribute
+          [
+            (name)
+            (qualified_name)
+          ] @run))))
+  (function_definition
+    attributes: (attribute_list
+      (attribute_group
+        (attribute
+          [
+            (name)
+            (qualified_name)
+          ] @run))))
+] @_testo-type-inline
+  (#any-of? @run "TestInline" "\\Testo\\Inline\\TestInline")
+  (#set! tag testo-type-inline))
+
+; #[Bench] (\Testo\Bench) -> --type=bench.
+([
+  (method_declaration
+    attributes: (attribute_list
+      (attribute_group
+        (attribute
+          [
+            (name)
+            (qualified_name)
+          ] @run))))
+  (function_definition
+    attributes: (attribute_list
+      (attribute_group
+        (attribute
+          [
+            (name)
+            (qualified_name)
+          ] @run))))
+] @_testo-type-bench
+  (#any-of? @run "Bench" "\\Testo\\Bench")
+  (#set! tag testo-type-bench))
+
+; #[TestRectorFixtures(...)] (\Testo\Bridge\Rector\Testing\TestRectorFixtures) is
+; a TARGET_CLASS attribute marking a Rector rule whose `*.php.inc` fixtures are the
+; test cases -> --type=rector-fixture. Unlike the kinds above it sits on the class,
+; so this matches a `class_declaration`; `$ZED_SYMBOL` resolves to the class name
+; (the class outline item spans its attribute lines). The attribute's argument list
+; (the fixture path) doesn't affect the match — `(name)` is still its first child.
+((class_declaration
+  attributes: (attribute_list
+    (attribute_group
+      (attribute
+        [
+          (name)
+          (qualified_name)
+        ] @run)))
+  (#any-of? @run "TestRectorFixtures" "\\Testo\\Bridge\\Rector\\Testing\\TestRectorFixtures")) @_testo-type-rector-fixture
+  (#set! tag testo-type-rector-fixture))
+
+; Run-all icon on the symbol name for the non-#[Test] kinds (method or free
+; function): clicking it runs every case of the symbol, no `--type`. #[Test]
+; symbols already get a run-all icon from the generic patterns above; this adds
+; the same for symbols whose only marker is #[TestInline] / #[Bench] /
+; #[RectorTestingPlugin]. It fires once per matching attribute, so a symbol with
+; several (repeated or mixed kinds) yields duplicate matches on the same row —
+; Zed keys runnables by row, collapsing them into a single gutter indicator.
+([
+  (method_declaration
+    attributes: (attribute_list
+      (attribute_group
+        (attribute
+          [
+            (name)
+            (qualified_name)
+          ] @_attr)))
+    name: (_) @run)
+  (function_definition
+    attributes: (attribute_list
+      (attribute_group
+        (attribute
+          [
+            (name)
+            (qualified_name)
+          ] @_attr)))
+    name: (_) @run)
+] @_testo-test
+  (#any-of? @_attr "TestInline" "\\Testo\\Inline\\TestInline" "Bench" "\\Testo\\Bench")
+  (#set! tag testo-test))
+
+; Run-all icon on the class name for a #[TestRectorFixtures] rule class (the
+; class-level counterpart of the run-all pattern above).
+((class_declaration
+  attributes: (attribute_list
+    (attribute_group
+      (attribute
+        [
+          (name)
+          (qualified_name)
+        ] @_attr)))
+  (#any-of? @_attr "TestRectorFixtures" "\\Testo\\Bridge\\Rector\\Testing\\TestRectorFixtures")
+  name: (_) @run) @_testo-test
+  (#set! tag testo-test))
 
 ; Add support for Pest runnable
 ; Function expression that has `it`, `test` or `describe` as the function name

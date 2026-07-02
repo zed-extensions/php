@@ -42,6 +42,30 @@
     "tags": ["testo-test"]
   },
   {
+    "label": "testo: test $ZED_SYMBOL",
+    "command": "php",
+    "args": ["vendor/bin/testo", "--path=\"$ZED_RELATIVE_FILE\"", "--filter=\"$ZED_SYMBOL\"", "--type=test"],
+    "tags": ["testo-type-test"]
+  },
+  {
+    "label": "testo: inline $ZED_SYMBOL",
+    "command": "php",
+    "args": ["vendor/bin/testo", "--path=\"$ZED_RELATIVE_FILE\"", "--filter=\"$ZED_SYMBOL\"", "--type=inline"],
+    "tags": ["testo-type-inline"]
+  },
+  {
+    "label": "testo: bench $ZED_SYMBOL",
+    "command": "php",
+    "args": ["vendor/bin/testo", "--path=\"$ZED_RELATIVE_FILE\"", "--filter=\"$ZED_SYMBOL\"", "--type=bench"],
+    "tags": ["testo-type-bench"]
+  },
+  {
+    "label": "testo: rector-fixture $ZED_SYMBOL",
+    "command": "php",
+    "args": ["vendor/bin/testo", "--path=\"$ZED_RELATIVE_FILE\"", "--filter=\"$ZED_SYMBOL\"", "--type=rector-fixture"],
+    "tags": ["testo-type-rector-fixture"]
+  },
+  {
     "label": "testo: run file $ZED_FILENAME",
     "command": "php",
     "args": ["vendor/bin/testo", "--path=\"$ZED_RELATIVE_FILE\""],
