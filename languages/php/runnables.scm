@@ -101,7 +101,10 @@
 ; assert the absence of a modifier). Testo ignores them at run time, so at
 ; worst a button on an abstract class runs and finds no cases.
 ; ---------------------------------------------------------------------------
-; Public `void`/`never` method inside a class annotated with class-level #[Test]
+; Public `void`/`never` method inside a class annotated with class-level #[Test].
+; These are test cases, so each gets the single "run this test" action
+; (`testo-type-test`, like a method-level `#[Test]` attribute) rather than the
+; run/file/all menu — that menu lives on the class name below.
 ((class_declaration
   attributes: (attribute_list
     (attribute_group
@@ -117,8 +120,8 @@
       (#eq? @_visibility "public")
       name: (_) @run
       return_type: (_) @_rtype
-      (#any-of? @_rtype "void" "never")))) @_testo-test
-  (#set! tag testo-test))
+      (#any-of? @_rtype "void" "never")))) @_testo-type-test
+  (#set! tag testo-type-test))
 
 ; Class annotated with a class-level #[Test] attribute (run the whole case)
 ((class_declaration
