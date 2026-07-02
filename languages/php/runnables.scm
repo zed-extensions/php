@@ -183,13 +183,22 @@
 ; guessing, the ambiguity is split by position: the Testo run sits on the
 ; attribute row (the `testo-type-test` icon above, `--type=test`), and the
 ; method-name row gets the PHPUnit run — so the user picks by where they click.
-((method_declaration
-  attributes: (attribute_list
-    (attribute_group
-      (attribute
-        (name) @_attr)))
-  (#eq? @_attr "Test")
-  name: (_) @run) @_phpunit-test
+;
+; The PHPUnit run is only offered when the class extends something: PHPUnit tests
+; always extend `TestCase`, so a bare `#[Test]` in a class with no `extends` is
+; not PHPUnit and its method-name row stays empty. Rooted at the class (like the
+; naming-convention PHPUnit patterns above), so it stays linear — the `base_clause`
+; is a single node, not a per-`use` multiplier.
+((class_declaration
+  (base_clause)
+  body: (declaration_list
+    (method_declaration
+      attributes: (attribute_list
+        (attribute_group
+          (attribute
+            (name) @_attr)))
+      (#eq? @_attr "Test")
+      name: (_) @run))) @_phpunit-test
   (#set! tag phpunit-test))
 
 ; Testo configuration file: `return new ApplicationConfig(...)`. Runs the whole
