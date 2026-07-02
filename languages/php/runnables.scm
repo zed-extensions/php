@@ -133,21 +133,36 @@
   name: (_) @run) @_testo-test
   (#set! tag testo-test))
 
-; Method or free function carrying `#[Test]` / `#[\Testo\Test]` — run-all icon on
-; the name. Matched LOCALLY (rooted at the declaration), never at `program`, so
-; there is no per-(use-statement × method) match-state blow-up. See the note in
-; the PHPUnit section: a bare method-level `#[Test]` can't be told apart from
-; PHPUnit's without a file-spanning `use` correlation, and that correlation is
-; exactly what made gutters disappear — so bare `#[Test]` is treated as Testo.
+; Class whose #[Test] lives on the methods (not on the class) still gets a
+; run-all gutter on the class name, so the whole class can be run at once.
+; Rooted at the class (never at `program`), so it stays linear; it fires once
+; per matching method, but those all land on the class-name row and Zed collapses
+; them into a single indicator.
+((class_declaration
+  name: (_) @run
+  body: (declaration_list
+    (method_declaration
+      attributes: (attribute_list
+        (attribute_group
+          (attribute
+            [
+              (name)
+              (qualified_name)
+            ] @_attr)))
+      (#any-of? @_attr "Test" "\\Testo\\Test")))) @_testo-test
+  (#set! tag testo-test))
+
+; Run-all icon on the name. Matched LOCALLY (rooted at the declaration), never at
+; `program`, so there is no per-(use-statement × method) match-state blow-up.
+;
+; Unambiguously Testo: a fully-qualified `#[\Testo\Test]` (method or function),
+; and a bare `#[Test]` on a free function (PHPUnit has no function tests).
 ([
   (method_declaration
     attributes: (attribute_list
       (attribute_group
         (attribute
-          [
-            (name)
-            (qualified_name)
-          ] @_attr)))
+          (qualified_name) @_attr)))
     name: (_) @run)
   (function_definition
     attributes: (attribute_list
@@ -161,6 +176,21 @@
 ] @_testo-test
   (#any-of? @_attr "Test" "\\Testo\\Test")
   (#set! tag testo-test))
+
+; A bare method-level `#[Test]` is ambiguous between Testo and PHPUnit (the only
+; exact disambiguator is the file's `use` import, which can't be correlated
+; without the `program`-rooted pattern that made gutters vanish). Instead of
+; guessing, the ambiguity is split by position: the Testo run sits on the
+; attribute row (the `testo-type-test` icon above, `--type=test`), and the
+; method-name row gets the PHPUnit run — so the user picks by where they click.
+((method_declaration
+  attributes: (attribute_list
+    (attribute_group
+      (attribute
+        (name) @_attr)))
+  (#eq? @_attr "Test")
+  name: (_) @run) @_phpunit-test
+  (#set! tag phpunit-test))
 
 ; Testo configuration file: `return new ApplicationConfig(...)`. Runs the whole
 ; suite defined by this config via `testo --config=<file>`.
