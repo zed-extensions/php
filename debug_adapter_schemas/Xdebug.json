@@ -20,6 +20,17 @@
       "description": "The PHP script to debug (typically a path to a file)",
       "default": "${file}"
     },
+    "runtimeExecutable": {
+      "type": "string",
+      "description": "Absolute path to the PHP executable the adapter spawns (default: the `php` on your PATH). Set this to a real `php.exe` when `php` on the PATH is a shell shim (a `.bat`/`.cmd` cannot be launched directly)."
+    },
+    "runtimeArgs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Arguments passed to the PHP executable before the program (for example `-dxdebug.mode=debug`)"
+    },
     "cwd": {
       "type": "string",
       "description": "Working directory for the debugged program"
