@@ -176,5 +176,5 @@
       }
     }
   },
-  "required": ["request", "program"]
+  "required": ["request"]
 }

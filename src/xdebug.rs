@@ -210,41 +210,53 @@ impl XDebug {
             if obj.get("cwd").is_none_or(Value::is_null) {
                 obj.insert("cwd".to_string(), worktree.root_path().into());
             }
-            // The adapter spawns PHP itself; on Windows `spawn("php")` won't find
-            // `php.exe` on the PATH, so hand it the absolute path we resolve here
-            // (honoring a `PHP_BINARY` override for shell-shim setups).
-            if !obj.contains_key("runtimeExecutable") {
-                if let Some(php) = resolve_php_runtime(worktree) {
+            // A launch config with a `program` runs a PHP script (CLI debugging);
+            // one without just listens for incoming Xdebug connections (web
+            // debugging). Only the former spawns PHP, so the PHP binary and the
+            // Xdebug-enabling args belong there only — injecting them into a
+            // listener would make the adapter try to spawn `php` with no script
+            // instead of listening.
+            let launches_program = obj
+                .get("program")
+                .and_then(Value::as_str)
+                .is_some_and(|program| !program.is_empty());
+            if launches_program {
+                // The adapter spawns PHP itself; on Windows `spawn("php")` won't find
+                // `php.exe` on the PATH, so hand it the absolute path we resolve here
+                // (honoring a `PHP_BINARY` override for shell-shim setups).
+                if !obj.contains_key("runtimeExecutable")
+                    && let Some(php) = resolve_php_runtime(worktree)
+                {
                     obj.insert("runtimeExecutable".to_string(), php.into());
                 }
-            }
-            // The adapter forwards `runtimeArgs` to PHP verbatim; it does NOT enable
-            // Xdebug on its own. Without these `-dxdebug…` overrides the launched
-            // script never connects back and breakpoints never bind. `${port}` is
-            // replaced by the adapter with the DBGp port it listens on, so it always
-            // matches. Users can override by setting their own `runtimeArgs`.
-            // (Xdebug must still be loaded in PHP via `zend_extension`.)
-            if !obj.contains_key("runtimeArgs") {
-                obj.insert(
-                    "runtimeArgs".to_string(),
-                    json!([
-                        "-dxdebug.mode=debug",
-                        "-dxdebug.start_with_request=yes",
-                        "-dxdebug.client_port=${port}"
-                    ]),
-                );
-            }
-            // The debug adapter spawns PHP directly (no shell), and Node refuses to
-            // launch `.bat`/`.cmd` files (CVE-2024-27980), failing with a cryptic
-            // `spawn EINVAL`. Turn that into an actionable message.
-            if let Some(runtime) = obj.get("runtimeExecutable").and_then(Value::as_str) {
-                let ext = runtime.to_ascii_lowercase();
-                if ext.ends_with(".bat") || ext.ends_with(".cmd") {
-                    return Err(format!(
-                        "Cannot debug through the shell shim `{runtime}`: the debug adapter \
-                         spawns PHP directly and Windows batch files can't be launched that way. \
-                         Point `PHP_BINARY` (or a `runtimeExecutable` in your debug config) at a real `php.exe`."
-                    ));
+                // The adapter forwards `runtimeArgs` to PHP verbatim; it does NOT
+                // enable Xdebug on its own. Without these `-dxdebug…` overrides the
+                // launched script never connects back and breakpoints never bind.
+                // `${port}` is replaced by the adapter with the DBGp port it listens
+                // on, so it always matches. Users can override with their own
+                // `runtimeArgs`. (Xdebug must still be loaded via `zend_extension`.)
+                if !obj.contains_key("runtimeArgs") {
+                    obj.insert(
+                        "runtimeArgs".to_string(),
+                        json!([
+                            "-dxdebug.mode=debug",
+                            "-dxdebug.start_with_request=yes",
+                            "-dxdebug.client_port=${port}"
+                        ]),
+                    );
+                }
+                // The debug adapter spawns PHP directly (no shell), and Node refuses
+                // to launch `.bat`/`.cmd` files (CVE-2024-27980), failing with a
+                // cryptic `spawn EINVAL`. Turn that into an actionable message.
+                if let Some(runtime) = obj.get("runtimeExecutable").and_then(Value::as_str) {
+                    let ext = runtime.to_ascii_lowercase();
+                    if ext.ends_with(".bat") || ext.ends_with(".cmd") {
+                        return Err(format!(
+                            "Cannot debug through the shell shim `{runtime}`: the debug adapter \
+                             spawns PHP directly and Windows batch files can't be launched that way. \
+                             Point `PHP_BINARY` (or a `runtimeExecutable` in your debug config) at a real `php.exe`."
+                        ));
+                    }
                 }
             }
         }
