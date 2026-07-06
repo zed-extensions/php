@@ -49,7 +49,7 @@
 
 ; Class that follow the naming convention of PHPUnit test classes
 ; and that doesn't have the abstract modifier
-; and have a method that has the #[Test] attribute
+; and have a method that has the #[Test] attribute (short imported form)
 ; and the method is public
 (
     (class_declaration
@@ -66,6 +66,37 @@
                     )
                 )
                 (#eq? @_attribute "Test")
+                (visibility_modifier)? @_visibility
+                (#eq? @_visibility "public")
+                name: (_) @run
+                (#not-match? @run "^test.*")
+            )
+        )
+    ) @_phpunit-test
+    (#set! tag phpunit-test)
+)
+
+; Class that follow the naming convention of PHPUnit test classes
+; and that doesn't have the abstract modifier
+; and have a method that has the #[Test] attribute (relative- or
+; fully-qualified form), matched against the whole PHPUnit\Framework\Attributes\Test
+; path so it doesn't false-positive on other frameworks' `Test`-named attributes
+; and the method is public
+(
+    (class_declaration
+        (_)* @_modifier
+        (#not-any-eq? @_modifier "abstract")
+        .
+        name: (_) @_name
+        (#match? @_name ".*Test$")
+        body: (declaration_list
+            (method_declaration
+                (attribute_list
+                    (attribute_group
+                        (attribute (qualified_name) @_attribute)
+                    )
+                )
+                (#match? @_attribute "^\\\\?PHPUnit\\\\Framework\\\\Attributes\\\\Test$")
                 (visibility_modifier)? @_visibility
                 (#eq? @_visibility "public")
                 name: (_) @run
