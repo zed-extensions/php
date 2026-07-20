@@ -20,6 +20,11 @@ language_ids = { PHP = "php" }
 name = "Phpactor"
 language = "PHP"
 
+[language_servers.phpantom]
+name = "PHPantom"
+language = "PHP"
+language_ids = { PHP = "php" }
+
 [debug_adapters.Xdebug]
 
 [grammars.php]
