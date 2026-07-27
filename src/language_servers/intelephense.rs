@@ -2,7 +2,7 @@ use std::{env, fs};
 
 use zed::{CodeLabel, CodeLabelSpan};
 use zed_extension_api::settings::LspSettings;
-use zed_extension_api::{self as zed, serde_json, LanguageServerId, Result};
+use zed_extension_api::{self as zed, LanguageServerId, Result, serde_json};
 
 const SERVER_PATH: &str = "node_modules/intelephense/lib/intelephense.js";
 const PACKAGE_NAME: &str = "intelephense";
@@ -98,7 +98,7 @@ impl Intelephense {
     ) -> Result<Option<serde_json::Value>> {
         let settings = LspSettings::for_worktree("intelephense", worktree)
             .ok()
-            .and_then(|lsp_settings| lsp_settings.settings.clone())
+            .and_then(|lsp_settings| lsp_settings.settings)
             .unwrap_or_default();
 
         Ok(Some(serde_json::json!({
@@ -112,17 +112,17 @@ impl Intelephense {
         match completion.kind? {
             zed::lsp::CompletionKind::Method => {
                 // __construct method doesn't have a detail
-                if let Some(ref detail) = completion.detail {
-                    if detail.is_empty() {
-                        return Some(CodeLabel {
-                            spans: vec![
-                                CodeLabelSpan::literal(label, Some("function.method".to_string())),
-                                CodeLabelSpan::literal("()", None),
-                            ],
-                            filter_range: (0..label.len()).into(),
-                            code: completion.label,
-                        });
-                    }
+                if let Some(ref detail) = completion.detail
+                    && detail.is_empty()
+                {
+                    return Some(CodeLabel {
+                        spans: vec![
+                            CodeLabelSpan::literal(label, Some("function.method".to_string())),
+                            CodeLabelSpan::literal("()", None),
+                        ],
+                        filter_range: (0..label.len()).into(),
+                        code: completion.label,
+                    });
                 }
 
                 let mut parts = completion.detail.as_ref()?.split(":");
@@ -146,18 +146,18 @@ impl Intelephense {
                 })
             }
             zed::lsp::CompletionKind::Constant | zed::lsp::CompletionKind::EnumMember => {
-                if let Some(ref detail) = completion.detail {
-                    if !detail.is_empty() {
-                        return Some(CodeLabel {
-                            spans: vec![
-                                CodeLabelSpan::literal(label, Some("constant".to_string())),
-                                CodeLabelSpan::literal(" ", None),
-                                CodeLabelSpan::literal(detail, Some("comment".to_string())),
-                            ],
-                            filter_range: (0..label.len()).into(),
-                            code: completion.label,
-                        });
-                    }
+                if let Some(ref detail) = completion.detail
+                    && !detail.is_empty()
+                {
+                    return Some(CodeLabel {
+                        spans: vec![
+                            CodeLabelSpan::literal(label, Some("constant".to_string())),
+                            CodeLabelSpan::literal(" ", None),
+                            CodeLabelSpan::literal(detail, Some("comment".to_string())),
+                        ],
+                        filter_range: (0..label.len()).into(),
+                        code: completion.label,
+                    });
                 }
 
                 Some(CodeLabel {

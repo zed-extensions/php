@@ -4,8 +4,8 @@ mod xdebug;
 use std::fs;
 use zed::CodeLabel;
 use zed_extension_api::{
-    self as zed, serde_json, DebugConfig, DebugScenario, LanguageServerId, Result,
-    StartDebuggingRequestArgumentsRequest,
+    self as zed, DebugConfig, DebugScenario, LanguageServerId, Result,
+    StartDebuggingRequestArgumentsRequest, serde_json,
 };
 
 use crate::{
@@ -100,15 +100,15 @@ impl zed::Extension for PhpExtension {
         language_server_id: &LanguageServerId,
         worktree: &zed::Worktree,
     ) -> Result<Option<serde_json::Value>> {
-        if language_server_id.as_ref() == PhpTools::LANGUAGE_SERVER_ID {
-            if let Some(phptools) = self.phptools.as_mut() {
-                return phptools.language_server_workspace_configuration(worktree);
-            }
+        if language_server_id.as_ref() == PhpTools::LANGUAGE_SERVER_ID
+            && let Some(phptools) = self.phptools.as_mut()
+        {
+            return phptools.language_server_workspace_configuration(worktree);
         }
-        if language_server_id.as_ref() == Intelephense::LANGUAGE_SERVER_ID {
-            if let Some(intelephense) = self.intelephense.as_mut() {
-                return intelephense.language_server_workspace_configuration(worktree);
-            }
+        if language_server_id.as_ref() == Intelephense::LANGUAGE_SERVER_ID
+            && let Some(intelephense) = self.intelephense.as_mut()
+        {
+            return intelephense.language_server_workspace_configuration(worktree);
         }
 
         Ok(None)
@@ -143,7 +143,8 @@ impl zed::Extension for PhpExtension {
         if config.adapter != XDebug::NAME {
             return Err(format!(
                 "PHP extension does not support unknown adapter in `dap_config_to_scenario`: {} (supported: [{}])",
-                config.adapter, XDebug::NAME
+                config.adapter,
+                XDebug::NAME
             ));
         }
         self.xdebug.dap_config_to_scenario(config)
@@ -158,7 +159,8 @@ impl zed::Extension for PhpExtension {
         if config.adapter != XDebug::NAME {
             return Err(format!(
                 "PHP extension does not support unknown adapter in `get_dap_binary`: {} (supported: [{}])",
-                adapter_name, XDebug::NAME
+                adapter_name,
+                XDebug::NAME
             ));
         }
         self.xdebug
