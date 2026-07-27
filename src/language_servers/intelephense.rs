@@ -113,16 +113,17 @@ impl Intelephense {
             zed::lsp::CompletionKind::Method => {
                 // __construct method doesn't have a detail
                 if let Some(ref detail) = completion.detail
-                    && detail.is_empty() {
-                        return Some(CodeLabel {
-                            spans: vec![
-                                CodeLabelSpan::literal(label, Some("function.method".to_string())),
-                                CodeLabelSpan::literal("()", None),
-                            ],
-                            filter_range: (0..label.len()).into(),
-                            code: completion.label,
-                        });
-                    }
+                    && detail.is_empty()
+                {
+                    return Some(CodeLabel {
+                        spans: vec![
+                            CodeLabelSpan::literal(label, Some("function.method".to_string())),
+                            CodeLabelSpan::literal("()", None),
+                        ],
+                        filter_range: (0..label.len()).into(),
+                        code: completion.label,
+                    });
+                }
 
                 let mut parts = completion.detail.as_ref()?.split(":");
                 // E.g., `foo(string $var)`
@@ -146,17 +147,18 @@ impl Intelephense {
             }
             zed::lsp::CompletionKind::Constant | zed::lsp::CompletionKind::EnumMember => {
                 if let Some(ref detail) = completion.detail
-                    && !detail.is_empty() {
-                        return Some(CodeLabel {
-                            spans: vec![
-                                CodeLabelSpan::literal(label, Some("constant".to_string())),
-                                CodeLabelSpan::literal(" ", None),
-                                CodeLabelSpan::literal(detail, Some("comment".to_string())),
-                            ],
-                            filter_range: (0..label.len()).into(),
-                            code: completion.label,
-                        });
-                    }
+                    && !detail.is_empty()
+                {
+                    return Some(CodeLabel {
+                        spans: vec![
+                            CodeLabelSpan::literal(label, Some("constant".to_string())),
+                            CodeLabelSpan::literal(" ", None),
+                            CodeLabelSpan::literal(detail, Some("comment".to_string())),
+                        ],
+                        filter_range: (0..label.len()).into(),
+                        code: completion.label,
+                    });
+                }
 
                 Some(CodeLabel {
                     spans: vec![CodeLabelSpan::literal(label, Some("constant".to_string()))],
