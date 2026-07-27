@@ -1,11 +1,11 @@
 use std::{env, path::Path, str::FromStr, sync::OnceLock};
 
 use zed_extension_api::{
-    download_file, latest_github_release, node_binary_path, resolve_tcp_template,
-    serde_json::{self, json, Value},
     DebugAdapterBinary, DebugConfig, DebugRequest, DebugScenario, DownloadedFileType,
     GithubReleaseAsset, GithubReleaseOptions, StartDebuggingRequestArguments,
-    StartDebuggingRequestArgumentsRequest, TcpArguments, TcpArgumentsTemplate,
+    StartDebuggingRequestArgumentsRequest, TcpArguments, TcpArgumentsTemplate, download_file,
+    latest_github_release, node_binary_path, resolve_tcp_template,
+    serde_json::{self, Value, json},
 };
 
 pub(super) struct XDebug {
