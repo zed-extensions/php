@@ -112,8 +112,8 @@ impl Intelephense {
         match completion.kind? {
             zed::lsp::CompletionKind::Method => {
                 // __construct method doesn't have a detail
-                if let Some(ref detail) = completion.detail {
-                    if detail.is_empty() {
+                if let Some(ref detail) = completion.detail
+                    && detail.is_empty() {
                         return Some(CodeLabel {
                             spans: vec![
                                 CodeLabelSpan::literal(label, Some("function.method".to_string())),
@@ -123,7 +123,6 @@ impl Intelephense {
                             code: completion.label,
                         });
                     }
-                }
 
                 let mut parts = completion.detail.as_ref()?.split(":");
                 // E.g., `foo(string $var)`
@@ -146,8 +145,8 @@ impl Intelephense {
                 })
             }
             zed::lsp::CompletionKind::Constant | zed::lsp::CompletionKind::EnumMember => {
-                if let Some(ref detail) = completion.detail {
-                    if !detail.is_empty() {
+                if let Some(ref detail) = completion.detail
+                    && !detail.is_empty() {
                         return Some(CodeLabel {
                             spans: vec![
                                 CodeLabelSpan::literal(label, Some("constant".to_string())),
@@ -158,7 +157,6 @@ impl Intelephense {
                             code: completion.label,
                         });
                     }
-                }
 
                 Some(CodeLabel {
                     spans: vec![CodeLabelSpan::literal(label, Some("constant".to_string()))],

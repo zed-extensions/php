@@ -100,16 +100,14 @@ impl zed::Extension for PhpExtension {
         language_server_id: &LanguageServerId,
         worktree: &zed::Worktree,
     ) -> Result<Option<serde_json::Value>> {
-        if language_server_id.as_ref() == PhpTools::LANGUAGE_SERVER_ID {
-            if let Some(phptools) = self.phptools.as_mut() {
+        if language_server_id.as_ref() == PhpTools::LANGUAGE_SERVER_ID
+            && let Some(phptools) = self.phptools.as_mut() {
                 return phptools.language_server_workspace_configuration(worktree);
             }
-        }
-        if language_server_id.as_ref() == Intelephense::LANGUAGE_SERVER_ID {
-            if let Some(intelephense) = self.intelephense.as_mut() {
+        if language_server_id.as_ref() == Intelephense::LANGUAGE_SERVER_ID
+            && let Some(intelephense) = self.intelephense.as_mut() {
                 return intelephense.language_server_workspace_configuration(worktree);
             }
-        }
 
         Ok(None)
     }
