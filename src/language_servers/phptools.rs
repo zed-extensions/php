@@ -1,7 +1,7 @@
 use std::fs;
 use zed::{Architecture, Os};
 use zed_extension_api::settings::LspSettings;
-use zed_extension_api::{self as zed, serde_json, LanguageServerId, Result};
+use zed_extension_api::{self as zed, LanguageServerId, Result, serde_json};
 
 const PACKAGE_NAME: &str = "devsense-php-ls";
 
@@ -118,7 +118,7 @@ impl PhpTools {
     ) -> Result<Option<serde_json::Value>> {
         let settings = LspSettings::for_worktree("phptools", worktree)
             .ok()
-            .and_then(|lsp_settings| lsp_settings.settings.clone())
+            .and_then(|lsp_settings| lsp_settings.settings)
             .unwrap_or_default();
 
         Ok(Some(serde_json::json!({

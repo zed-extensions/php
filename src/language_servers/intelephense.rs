@@ -2,7 +2,7 @@ use std::{env, fs};
 
 use zed::{CodeLabel, CodeLabelSpan};
 use zed_extension_api::settings::LspSettings;
-use zed_extension_api::{self as zed, serde_json, LanguageServerId, Result};
+use zed_extension_api::{self as zed, LanguageServerId, Result, serde_json};
 
 const SERVER_PATH: &str = "node_modules/intelephense/lib/intelephense.js";
 const PACKAGE_NAME: &str = "intelephense";
@@ -98,7 +98,7 @@ impl Intelephense {
     ) -> Result<Option<serde_json::Value>> {
         let settings = LspSettings::for_worktree("intelephense", worktree)
             .ok()
-            .and_then(|lsp_settings| lsp_settings.settings.clone())
+            .and_then(|lsp_settings| lsp_settings.settings)
             .unwrap_or_default();
 
         Ok(Some(serde_json::json!({
