@@ -9,7 +9,7 @@ use zed_extension_api::{
 };
 
 use crate::{
-    language_servers::{Intelephense, PhpTools, Phpactor, Phpantom},
+    language_servers::{Intelephense, PhpLsp, PhpTools, Phpactor, Phpantom},
     xdebug::XDebug,
 };
 
@@ -18,6 +18,7 @@ struct PhpExtension {
     intelephense: Option<Intelephense>,
     phpactor: Option<Phpactor>,
     phpantom: Option<Phpantom>,
+    php_lsp: Option<PhpLsp>,
     xdebug: XDebug,
 }
 
@@ -28,6 +29,7 @@ impl zed::Extension for PhpExtension {
             intelephense: None,
             phpactor: None,
             phpantom: None,
+            php_lsp: None,
             xdebug: XDebug::new(),
         }
     }
@@ -90,6 +92,10 @@ impl zed::Extension for PhpExtension {
             Phpantom::LANGUAGE_SERVER_ID => {
                 let phpantom = self.phpantom.get_or_insert_with(Phpantom::new);
                 phpantom.language_server_command(language_server_id, worktree)
+            }
+            PhpLsp::LANGUAGE_SERVER_ID => {
+                let php_lsp = self.php_lsp.get_or_insert_with(PhpLsp::new);
+                php_lsp.language_server_command(language_server_id, worktree)
             }
             language_server_id => Err(format!("unknown language server: {language_server_id}")),
         }

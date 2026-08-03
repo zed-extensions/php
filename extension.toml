@@ -25,6 +25,11 @@ name = "PHPantom"
 language = "PHP"
 language_ids = { PHP = "php" }
 
+[language_servers.php-lsp]
+name = "php-lsp"
+language = "PHP"
+language_ids = { PHP = "php" }
+
 [debug_adapters.Xdebug]
 
 [grammars.php]
