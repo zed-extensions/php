@@ -248,9 +248,9 @@
 
 "implements" @keyword
 
-"include_once" @keyword
+"include_once" @keyword.import
 
-"include" @keyword
+"include" @keyword.import
 
 "instanceof" @keyword
 
@@ -276,9 +276,9 @@
 
 "readonly" @keyword
 
-"require_once" @keyword
+"require_once" @keyword.import
 
-"require" @keyword
+"require" @keyword.import
 
 "return" @keyword
 
@@ -292,7 +292,7 @@
 
 "try" @keyword
 
-"use" @keyword
+"use" @keyword.import
 
 "while" @keyword
 
