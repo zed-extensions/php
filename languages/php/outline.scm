@@ -25,7 +25,7 @@
 (const_declaration
   "const" @context
   (const_element
-    (name) @name) @item)
+    (name) @name)) @item
 
 ; Add support for Pest runnable
 (function_call_expression
