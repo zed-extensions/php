@@ -22,6 +22,11 @@
   "trait" @context
   name: (_) @name) @item
 
+(const_declaration
+  "const" @context
+  (const_element
+    (name) @name) @item)
+
 ; Add support for Pest runnable
 (function_call_expression
   function: (_) @context
