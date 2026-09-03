@@ -20,3 +20,4 @@ prettier_parser_name = "php"
 prettier_plugins = ["@prettier/plugin-php"]
 completion_query_characters = ["$"]
 word_characters = ["$"]
+debuggers = ["Xdebug"]
