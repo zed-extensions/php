@@ -8,18 +8,18 @@ repository = "https://github.com/zed-extensions/php"
 
 [language_servers.phptools]
 name = "PhpTools"
-languages = ["PHP"]
-language_ids = { PHP = "php" }
+languages = ["PHP", "Blade"]
+language_ids = { PHP = "php", Blade = "blade" }
 
 [language_servers.intelephense]
 name = "Intelephense"
-languages = ["PHP"]
-language_ids = { PHP = "php" }
+languages = ["PHP", "Blade"]
+language_ids = { PHP = "php", Blade = "blade" }
 
 [language_servers.phpactor]
 name = "Phpactor"
-languages = ["PHP"]
-language_ids = { PHP = "php" }
+languages = ["PHP", "Blade"]
+language_ids = { PHP = "php", Blade = "blade" }
 
 [language_servers.phpantom]
 name = "PHPantom"
