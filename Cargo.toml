@@ -11,3 +11,12 @@ crate-type = ["cdylib"]
 
 [dependencies]
 zed_extension_api = "0.7.0"
+
+[dev-dependencies]
+# Exercise the `.scm` runnable queries and `tasks.json` the same way Zed does:
+# the native tree-sitter engine and the pinned PHP grammar. `5b5627f` (the
+# grammar commit in extension.toml) is the `tree-sitter-php` 0.24.2 release, so
+# this crate parses identically to the editor.
+tree-sitter = "0.25"
+tree-sitter-php = "0.24"
+serde_json = "1"
