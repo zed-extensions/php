@@ -5,7 +5,7 @@ use std::fs;
 use zed::CodeLabel;
 use zed_extension_api::{
     self as zed, DebugConfig, DebugScenario, LanguageServerId, Result,
-    StartDebuggingRequestArgumentsRequest, serde_json,
+    StartDebuggingRequestArgumentsRequest, TaskTemplate, serde_json,
 };
 
 use crate::{
@@ -165,6 +165,16 @@ impl zed::Extension for PhpExtension {
         }
         self.xdebug
             .get_binary(config, user_provided_debug_adapter_path, worktree)
+    }
+    fn dap_locator_create_scenario(
+        &mut self,
+        _locator_name: String,
+        build_task: TaskTemplate,
+        resolved_label: String,
+        debug_adapter_name: String,
+    ) -> Option<DebugScenario> {
+        self.xdebug
+            .dap_locator_create_scenario(build_task, resolved_label, debug_adapter_name)
     }
 }
 
