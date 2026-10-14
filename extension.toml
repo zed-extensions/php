@@ -36,3 +36,8 @@ path = "php"
 [grammars.phpdoc]
 repository = "https://github.com/claytonrcarter/tree-sitter-phpdoc"
 commit = "488198e61f49fc74ee54069a4126b556665a57cc"
+
+[[capabilities]]
+kind = "process:exec"
+command = "php"
+args = ["-r", "**"]
