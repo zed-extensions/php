@@ -25,6 +25,7 @@ language_ids = { PHP = "php", Blade = "blade" }
 name = "PHPantom"
 languages = ["PHP", "Blade", "Twig", "YAML", "XML"]
 language_ids = { PHP = "php", Blade = "blade", Twig = "twig", YAML = "yaml", XML = "xml" }
+opt_in_languages = ["Twig", "YAML", "XML"]
 
 [debug_adapters.Xdebug]
 
