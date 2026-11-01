@@ -23,8 +23,8 @@ language_ids = { PHP = "php", Blade = "blade" }
 
 [language_servers.phpantom]
 name = "PHPantom"
-languages = ["PHP", "Blade"]
-language_ids = { PHP = "php", Blade = "blade" }
+languages = ["PHP", "Blade", "Twig", "YAML", "XML"]
+language_ids = { PHP = "php", Blade = "blade", Twig = "twig", YAML = "yaml", XML = "xml" }
 
 [debug_adapters.Xdebug]
 
